@@ -1,5 +1,6 @@
-# logcat2csv
-Convert logcat to csv.
+# logcat2csv [![Build Status](https://travis-ci.org/ujiro99/logcat2csv.svg?branch=master)](https://travis-ci.org/ujiro99/logcat2csv)
+
+Command line tool for convert logcat to csv.
 
 ## Description
 
