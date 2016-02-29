@@ -1,5 +1,5 @@
 VERSION=$(git describe --tags)
-gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}" -os="windows darwin linux" -ldflags="-s -w -X main.version=${VERSION}"
+gox -output "dist/{{.OS}}_{{.Arch}}_{{.Dir}}" -os="windows darwin linux" -ldflags="-s -w -X main.Version=${VERSION}"
 cd dist
 mv  darwin_386_logcat2csv        logcat2csv
 zip darwin_386_logcat2csv        logcat2csv     -qm

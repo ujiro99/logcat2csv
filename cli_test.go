@@ -17,7 +17,7 @@ func TestRun_versionFlag(t *testing.T) {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
 
-	expected := fmt.Sprintf("logcat2csv version %s", version)
+	expected := fmt.Sprintf("logcat2csv version %s", Version)
 	if !strings.Contains(errStream.String(), expected) {
 		t.Errorf("expected %q to eq %q", errStream.String(), expected)
 	}
