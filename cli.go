@@ -29,7 +29,7 @@ type cmdParams struct {
 	reader io.Reader
 	writer io.Writer
 	encode string
-	path   string
+	paths  []string
 }
 
 // Run invokes the CLI with the given arguments.
@@ -42,6 +42,7 @@ func (cli *CLI) Run(args []string) int {
 	// Define option flag parse
 	flags := flag.NewFlagSet(Name, flag.ContinueOnError)
 	flags.SetOutput(cli.errStream)
+	flags.Usage = func() { fmt.Fprintf(cli.outStream, helpText) }
 	flags.StringVar(&encode, "encode", "", "charactor encoding of output file")
 	flags.StringVar(&encode, "e", "", "charactor encoding of output file(Short)")
 	flags.BoolVar(&version, "version", false, "Print version information and quit.")
@@ -64,16 +65,17 @@ func (cli *CLI) Run(args []string) int {
 		params.reader = cli.inStream
 		params.writer = cli.outStream
 	} else {
-		if len(os.Args) != 2 {
-			fmt.Println("You must drag and drop a file!")
+		paths := flags.Args()
+		if len(paths) <= 0 {
+			fmt.Println("You must specify a file!")
 			waitForKey()
 			return ExitCodeError
-		} else if !isFile(os.Args[1]) {
+		} else if !isFile(paths[0]) {
 			fmt.Println("File does not exist!")
 			waitForKey()
 			return ExitCodeError
 		}
-		params.path = os.Args[1]
+		params.paths = paths
 	}
 
 	// Execute
@@ -93,3 +95,16 @@ func isFile(file string) bool {
 	}
 	return true
 }
+
+var helpText = `logcat2csv is tool for convert logcat to csv.
+
+https://github.com/ujiro99/logcat2csv
+
+Usage:
+  logcat2csv [options] PATH ...
+
+Options:
+  --encode, -e   Charactor encoding of output file.
+  --version      Show version.
+  --help         Show this help.
+`
