@@ -40,7 +40,7 @@ func (l *logcat2csv) exec(params cmdParams) int {
 	parser := logcat.NewParser()
 	for line := range lines.Lines(params.reader) {
 		entry, err := parser.Parse(line)
-		if err != nil {
+		if err == nil {
 			csvWriter.Write(entry)
 		}
 	}
