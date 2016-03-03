@@ -29,6 +29,9 @@ func NewWriter(w io.Writer) *CsvWriter {
 
 // Write write logcat.Entry.
 func (f *CsvWriter) Write(item logcat.Entry) {
+	if item == nil {
+		return
+	}
 	f.w.Write(item.Values())
 }
 
