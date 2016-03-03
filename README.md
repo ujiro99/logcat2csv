@@ -1,8 +1,21 @@
-# logcat2csv [![Build Status](https://travis-ci.org/ujiro99/logcat2csv.svg?branch=master)](https://travis-ci.org/ujiro99/logcat2csv)
+# logcat2csv [![Build Status](https://travis-ci.org/ujiro99/logcat2csv.svg?branch=master)](https://travis-ci.org/ujiro99/logcat2csv)  [![Coverage Status](https://coveralls.io/repos/github/ujiro99/logcat2csv/badge.svg?branch=master)](https://coveralls.io/github/ujiro99/logcat2csv?branch=master)
 
 Command line tool for convert logcat to csv.
 
-## Description
+## SYNOPSIS
+
+```
+logcat2csv is tool for convert logcat to csv.
+
+Usage:
+  logcat2csv [options] PATH ...
+
+Options:
+  --encode, -e   Charactor encoding of output file.
+  --version      Show version.
+  --help         Show this help.
+```
+
 
 ## Install
 
