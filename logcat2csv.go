@@ -22,7 +22,7 @@ func (l *logcat2csv) execFiles(params cmdParams) int {
 			fmt.Printf("File open error: %s\n", path)
 			return ExitCodeError
 		}
-		w, e := os.Create(os.Args[1] + ".csv")
+		w, e := os.Create(path + ".csv")
 		defer w.Close()
 		if e != nil {
 			fmt.Printf("File create error: %s\n", path+".csv")
