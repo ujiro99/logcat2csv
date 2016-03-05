@@ -15,7 +15,7 @@ func TestRun_versionFlag(t *testing.T) {
 	cli := &CLI{outStream: outStream, errStream: errStream}
 	args := strings.Split("./logcat2csv -version", " ")
 
-	status := cli.Run(args)
+	status := cli.Run(args, "")
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
@@ -31,7 +31,7 @@ func TestRun_No_Args(t *testing.T) {
 	cli := &CLI{inStream: nil, outStream: outStream, errStream: errStream}
 	args := strings.Split("./logcat2csv", " ")
 
-	status := cli.Run(args)
+	status := cli.Run(args, "")
 	if status != ExitCodeError {
 		t.Errorf("expected %d to eq %d", status, ExitCodeError)
 	}
@@ -44,7 +44,7 @@ func TestRun_Not_File(t *testing.T) {
 	cli := &CLI{inStream: nil, outStream: outStream, errStream: errStream}
 	args := []string{"logcat2csv", file_name}
 
-	status := cli.Run(args)
+	status := cli.Run(args, "")
 	if status != ExitCodeError {
 		t.Errorf("expected %d to eq %d", status, ExitCodeError)
 	}
@@ -61,7 +61,7 @@ func TestRun_Exec_Stdio(t *testing.T) {
 	cli := &CLI{inStream: inStream, outStream: outStream, errStream: errStream}
 	args := strings.Split("./logcat2csv", " ")
 
-	status := cli.Run(args)
+	status := cli.Run(args, "")
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
@@ -78,7 +78,7 @@ func TestRun_encodeFlag(t *testing.T) {
 	cli := &CLI{inStream: nil}
 	args := strings.Split("./logcat2csv --encode shift-jis test/logcat_kanji.txt", " ")
 
-	status := cli.Run(args)
+	status := cli.Run(args, "")
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
@@ -105,7 +105,7 @@ func TestRun_Exec_Multiple_File(t *testing.T) {
 	cli := &CLI{inStream: nil}
 	args := strings.Split("./logcat2csv test/logcat.txt test/logcat2.txt", " ")
 
-	status := cli.Run(args)
+	status := cli.Run(args, "")
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
@@ -125,7 +125,7 @@ func TestRun_Exec_File_Not_File(t *testing.T) {
 	cli := &CLI{inStream: nil, errStream: errStream}
 	args := []string{"logcat2csv", "test/logcat.txt", file_name}
 
-	status := cli.Run(args)
+	status := cli.Run(args, "")
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}

@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/csv"
 	"io"
-	"runtime"
 
 	"golang.org/x/text/encoding/japanese"
 	"golang.org/x/text/transform"
@@ -30,8 +29,8 @@ type CsvWriter struct {
 }
 
 // NewWriter creates new csvWriter.
-func NewWriter(w io.Writer, encode string) *CsvWriter {
-	if runtime.GOOS == Windows && encode == "" {
+func NewWriter(w io.Writer, encode string, osName string) *CsvWriter {
+	if osName == Windows && encode == "" {
 		encode = ShiftJIS
 	}
 	switch encode {
@@ -44,7 +43,7 @@ func NewWriter(w io.Writer, encode string) *CsvWriter {
 	}
 
 	res := &CsvWriter{csv.NewWriter(w)}
-	if runtime.GOOS == Windows {
+	if osName == Windows {
 		res.w.UseCRLF = true
 	}
 	return res

@@ -30,10 +30,11 @@ type cmdParams struct {
 	writer io.Writer
 	encode string
 	paths  []string
+	osName string
 }
 
 // Run invokes the CLI with the given arguments.
-func (cli *CLI) Run(args []string) int {
+func (cli *CLI) Run(args []string, osName string) int {
 	var (
 		encode  string
 		version bool
@@ -59,8 +60,10 @@ func (cli *CLI) Run(args []string) int {
 	}
 
 	// Parse arguments
-	params := cmdParams{}
-	params.encode = encode
+	params := cmdParams{
+		encode: encode,
+		osName: osName,
+	}
 	if cli.inStream != nil {
 		params.reader = cli.inStream
 		params.writer = cli.outStream
