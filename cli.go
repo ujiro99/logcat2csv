@@ -65,17 +65,26 @@ func (cli *CLI) Run(args []string) int {
 		params.reader = cli.inStream
 		params.writer = cli.outStream
 	} else {
-		paths := flags.Args()
-		if len(paths) <= 0 {
-			fmt.Println("You must specify a file!")
-			waitForKey()
-			return ExitCodeError
-		} else if !isFile(paths[0]) {
-			fmt.Println("File does not exist!")
-			waitForKey()
+		if len(flags.Args()) <= 0 {
+			fmt.Fprintf(cli.errStream, "You must specify a file!\n")
+			cli.waitForKey()
 			return ExitCodeError
 		}
-		params.paths = paths
+		paths := make([]string, len(flags.Args()))
+		i := 0
+		for _, path := range flags.Args() {
+			if !isFile(path) {
+				fmt.Fprintf(cli.errStream, "File does not exist: %s\n", path)
+				cli.waitForKey()
+			} else {
+				paths[i] = path
+				i = i + 1
+			}
+		}
+		if i == 0 {
+			return ExitCodeError
+		}
+		params.paths = paths[:i]
 	}
 
 	// Execute
@@ -83,14 +92,14 @@ func (cli *CLI) Run(args []string) int {
 	return logcat2csv.Exec(params)
 }
 
-func waitForKey() {
-	fmt.Println("Please Enter to continue...")
+func (cli *CLI) waitForKey() {
+	fmt.Fprintf(cli.errStream, "Please Enter to continue...\n")
 	var buf [1]byte
 	os.Stdin.Read(buf[:])
 }
 
 func isFile(file string) bool {
-	if s, err := os.Stat(file); s.IsDir() || err != nil {
+	if s, err := os.Stat(file); err != nil || s.IsDir() {
 		return false
 	}
 	return true

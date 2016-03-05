@@ -36,7 +36,7 @@ func (l *logcat2csv) execFiles(params cmdParams) int {
 }
 
 func (l *logcat2csv) exec(params cmdParams) int {
-	csvWriter := NewWriter(params.writer)
+	csvWriter := NewWriter(params.writer, params.encode)
 	parser := logcat.NewParser()
 	for line := range lines.Lines(params.reader) {
 		entry, err := parser.Parse(line)

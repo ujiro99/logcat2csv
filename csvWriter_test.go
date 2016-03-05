@@ -20,7 +20,7 @@ func TestCsvWriter_Write_Full(t *testing.T) {
 	expected := "12-28 18:54:07.180,930,931,I,auditd,\"  test Message\"\n"
 
 	writer := new(bytes.Buffer)
-	csvWriter := NewWriter(writer)
+	csvWriter := NewWriter(writer, "")
 	csvWriter.Write(entry)
 	csvWriter.Flush()
 
@@ -39,7 +39,7 @@ func TestCsvWriter_Write(t *testing.T) {
 	expected := "12-28 18:54:07.180,auditd,\"  test Message\"\n"
 
 	writer := new(bytes.Buffer)
-	csvWriter := NewWriter(writer)
+	csvWriter := NewWriter(writer, "")
 	csvWriter.Write(entry)
 	csvWriter.Flush()
 
@@ -54,7 +54,7 @@ func TestCsvWriter_Empty(t *testing.T) {
 	expected := "\n"
 
 	writer := new(bytes.Buffer)
-	csvWriter := NewWriter(writer)
+	csvWriter := NewWriter(writer, "")
 	csvWriter.Write(entry)
 	csvWriter.Flush()
 
@@ -68,7 +68,7 @@ func TestCsvWriter_Nil(t *testing.T) {
 	expected := ""
 
 	writer := new(bytes.Buffer)
-	csvWriter := NewWriter(writer)
+	csvWriter := NewWriter(writer, "")
 	csvWriter.Write(nil)
 	csvWriter.Flush()
 
