@@ -1,0 +1,2 @@
+01-01 00:00:00.000   930   931 I tag_value  : message_value_3
+01-01 00:00:01.000   930   931 I tag_value  : message_value_4
