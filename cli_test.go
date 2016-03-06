@@ -3,12 +3,30 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"strings"
 	"testing"
 
 	"golang.org/x/text/encoding/japanese"
 	"golang.org/x/text/transform"
 )
+
+func convertTo(str string, encode string) string {
+	buf := new(bytes.Buffer)
+	var w io.Writer
+	switch encode {
+	case ShiftJIS:
+		w = transform.NewWriter(buf, japanese.ShiftJIS.NewEncoder())
+	case EUCJP:
+		w = transform.NewWriter(buf, japanese.EUCJP.NewEncoder())
+	case ISO2022JP:
+		w = transform.NewWriter(buf, japanese.ISO2022JP.NewEncoder())
+	default:
+		w = buf
+	}
+	w.Write([]byte(str))
+	return buf.String()
+}
 
 func TestRun_versionFlag(t *testing.T) {
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
@@ -72,8 +90,8 @@ func TestRun_Exec_Stdio(t *testing.T) {
 
 func TestRun_encodeFlag(t *testing.T) {
 	expect := []string{
-		toShiftJis("01-01 00:00:00.000,930,931,I,tag_value,message_value_1"),
-		toShiftJis("01-01 00:00:01.000,930,931,I,tag_value,message_value_あ亜Ａア￥凜熙♪堯"),
+		convertTo("01-01 00:00:00.000,930,931,I,tag_value,message_value_1", ShiftJIS),
+		convertTo("01-01 00:00:01.000,930,931,I,tag_value,message_value_あ亜Ａア￥凜熙♪堯", ShiftJIS),
 	}
 	cli := &CLI{inStream: nil}
 	args := strings.Split("./logcat2csv --encode shift-jis test/logcat_kanji.txt", " ")
@@ -83,13 +101,6 @@ func TestRun_encodeFlag(t *testing.T) {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
 	checkFile(args[3], expect, t)
-}
-
-func toShiftJis(str string) string {
-	buf := new(bytes.Buffer)
-	w := transform.NewWriter(buf, japanese.ShiftJIS.NewEncoder())
-	w.Write([]byte(str))
-	return buf.String()
 }
 
 func TestRun_Exec_Multiple_File(t *testing.T) {
@@ -119,11 +130,11 @@ func TestRun_Exec_File_Not_File(t *testing.T) {
 		"01-01 00:00:01.000,930,931,I,tag_value,message_value_2",
 	}
 
-	file_name := "not_a_file"
-	expect := "File does not exist: " + file_name + "\nPlease Enter to continue...\n"
+	fileName := "not_a_file"
+	expect := "File does not exist: " + fileName + "\nPlease Enter to continue...\n"
 	errStream := new(bytes.Buffer)
 	cli := &CLI{inStream: nil, errStream: errStream}
-	args := []string{"logcat2csv", "test/logcat.txt", file_name}
+	args := []string{"logcat2csv", "test/logcat.txt", fileName}
 
 	status := cli.Run(args, "")
 	if status != ExitCodeOK {
