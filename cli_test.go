@@ -56,11 +56,11 @@ func TestRun_No_Args(t *testing.T) {
 }
 
 func TestRun_Not_File(t *testing.T) {
-	file_name := "not_a_file"
-	expect := "File does not exist: " + file_name + "\nPlease Enter to continue...\n"
+	fileName := "not_a_file"
+	expect := "File does not exist: " + fileName + "\nPlease Enter to continue...\n"
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{inStream: nil, outStream: outStream, errStream: errStream}
-	args := []string{"logcat2csv", file_name}
+	args := []string{"logcat2csv", fileName}
 
 	status := cli.Run(args, "")
 	if status != ExitCodeError {

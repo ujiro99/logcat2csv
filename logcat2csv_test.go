@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -117,14 +116,13 @@ func checkFile(file string, expect []string) error {
 	for scanner.Scan() {
 		out = scanner.Text()
 		if out != expect[i] {
-			return errors.New(fmt.Sprintf("\n  result: %q\n  expect: %q", out, expect[i]))
+			return fmt.Errorf("\n  result: %q\n  expect: %q", out, expect[i])
 		}
 		i = i + 1
 	}
 	if err := scanner.Err(); err != nil {
 		return err
-	} else {
-		os.Remove(file + ".csv")
 	}
+	os.Remove(file + ".csv")
 	return nil
 }
