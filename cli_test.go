@@ -57,7 +57,7 @@ func TestRun_No_Args(t *testing.T) {
 
 func TestRun_Not_File(t *testing.T) {
 	fileName := "not_a_file"
-	expect := "File does not exist: " + fileName + "\nPlease Enter to continue...\n"
+	expect := "File does not exist: " + fileName + "\n"
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{inStream: nil, outStream: outStream, errStream: errStream}
 	args := []string{"logcat2csv", fileName}
@@ -138,7 +138,7 @@ func TestRun_Exec_File_Not_File(t *testing.T) {
 	}
 
 	fileName := "not_a_file"
-	expect := "File does not exist: " + fileName + "\nPlease Enter to continue...\n"
+	expect := "File does not exist: " + fileName + "\n"
 	errStream := new(bytes.Buffer)
 	cli := &CLI{inStream: nil, errStream: errStream}
 	args := []string{"logcat2csv", "test/logcat.txt", fileName}
@@ -153,5 +153,35 @@ func TestRun_Exec_File_Not_File(t *testing.T) {
 
 	if errStream.String() != expect {
 		t.Errorf("\n  result: %q\n  expect: %q", errStream.String(), expect)
+	}
+}
+
+func TestRun_Exec_Directory(t *testing.T) {
+	paths := []string{
+		"test/logcat.txt",
+		"test/logcat2.txt",
+		"test/logcat.raw.txt",
+		"test/logcat.threadtime.txt",
+		"test/logcat_kanji.txt",
+	}
+	errStream := new(bytes.Buffer)
+	cli := &CLI{inStream: nil, errStream: errStream}
+	args := []string{"logcat2csv", "./test"}
+
+	status := cli.Run(args, "")
+	if status != ExitCodeOK {
+		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
+	}
+
+	for _, path := range paths {
+		if path == "test/logcat.raw.txt" {
+			if isFile(path + ".csv") {
+				t.Error(path + ".csv is created.")
+			}
+			continue
+		}
+		if err := checkFile(path, nil); err != nil {
+			t.Error(err)
+		}
 	}
 }

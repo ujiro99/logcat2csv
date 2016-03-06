@@ -110,19 +110,22 @@ func checkFile(file string, expect []string) error {
 		return err
 	}
 	defer fp.Close()
-	scanner := bufio.NewScanner(fp)
 
-	i := 0
-	for scanner.Scan() {
-		out = scanner.Text()
-		if out != expect[i] {
-			return fmt.Errorf("\n  result: %q\n  expect: %q", out, expect[i])
+	if expect != nil {
+		scanner := bufio.NewScanner(fp)
+		i := 0
+		for scanner.Scan() {
+			out = scanner.Text()
+			if out != expect[i] {
+				return fmt.Errorf("\n  result: %q\n  expect: %q", out, expect[i])
+			}
+			i = i + 1
 		}
-		i = i + 1
+		if err := scanner.Err(); err != nil {
+			return err
+		}
 	}
-	if err := scanner.Err(); err != nil {
-		return err
-	}
+
 	os.Remove(file + ".csv")
 	return nil
 }

@@ -4,7 +4,9 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 // Exit codes are int values that represent an exit code for a particular error.
@@ -68,26 +70,10 @@ func (cli *CLI) Run(args []string, osName string) int {
 		params.reader = cli.inStream
 		params.writer = cli.outStream
 	} else {
-		if len(flags.Args()) <= 0 {
-			fmt.Fprintf(cli.errStream, "You must specify a file!\n")
-			cli.waitForKey()
+		params.paths = cli.expandArgs(flags.Args())
+		if len(params.paths) <= 0 {
 			return ExitCodeError
 		}
-		paths := make([]string, len(flags.Args()))
-		i := 0
-		for _, path := range flags.Args() {
-			if !isFile(path) {
-				fmt.Fprintf(cli.errStream, "File does not exist: %s\n", path)
-				cli.waitForKey()
-			} else {
-				paths[i] = path
-				i = i + 1
-			}
-		}
-		if i == 0 {
-			return ExitCodeError
-		}
-		params.paths = paths[:i]
 	}
 
 	// Execute
@@ -101,11 +87,73 @@ func (cli *CLI) waitForKey() {
 	os.Stdin.Read(buf[:])
 }
 
+func (cli *CLI) listFiles(dirName string) []string {
+	fileInfos, err := ioutil.ReadDir(dirName)
+	if err != nil {
+		return []string{}
+	}
+	files := make([]string, len(fileInfos))
+	i := 0
+	for _, fileInfo := range fileInfos {
+		// don't list recursively
+		if !fileInfo.IsDir() {
+			files[i] = filepath.Join(dirName, fileInfo.Name())
+			i = i + 1
+		}
+	}
+	return files[:i]
+}
+
+func (cli *CLI) expandArgs(args []string) []string {
+	if len(args) <= 0 {
+		fmt.Fprintf(cli.errStream, "Please specify a file, or drag & drop to icon.\n")
+		cli.waitForKey()
+		return []string{}
+	}
+
+	// list and validate filepaths.
+	files := make([]string, len(args))
+	pathMap := map[string][]string{
+		"": files,
+	}
+	total := 0 // count of total files.
+	count := 0 // count of files specified directlly.
+	for _, path := range args {
+		if isDir(path) {
+			pathMap[path] = cli.listFiles(path)
+			total = total + len(pathMap[path])
+		} else if isFile(path) {
+			files[count] = path
+			total = total + 1
+			count = count + 1
+		} else {
+			fmt.Fprintf(cli.errStream, "File does not exist: %s\n", path)
+		}
+	}
+	pathMap[""] = files[:count]
+	filePaths := make([]string, total)
+	i := 0
+	for _, paths := range pathMap {
+		for _, p := range paths {
+			filePaths[i] = p
+			i = i + 1
+		}
+	}
+	return filePaths
+}
+
 func isFile(file string) bool {
 	if s, err := os.Stat(file); err != nil || s.IsDir() {
 		return false
 	}
 	return true
+}
+
+func isDir(file string) bool {
+	if s, err := os.Stat(file); err == nil && s.IsDir() {
+		return true
+	}
+	return false
 }
 
 var helpText = `logcat2csv is tool for convert logcat to csv.
