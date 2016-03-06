@@ -160,7 +160,6 @@ func TestRun_Exec_Directory(t *testing.T) {
 	paths := []string{
 		"test/logcat.txt",
 		"test/logcat2.txt",
-		"test/logcat.raw.txt",
 		"test/logcat.threadtime.txt",
 		"test/logcat_kanji.txt",
 	}
@@ -174,14 +173,30 @@ func TestRun_Exec_Directory(t *testing.T) {
 	}
 
 	for _, path := range paths {
-		if path == "test/logcat.raw.txt" {
-			if isFile(path + ".csv") {
-				t.Error(path + ".csv is created.")
-			}
-			continue
-		}
 		if err := checkFile(path, nil); err != nil {
 			t.Error(err)
 		}
+	}
+}
+
+func TestRun_Exec_Directory_Ignore(t *testing.T) {
+	paths := []string{
+		"test/logcat.raw.txt",
+		"test/notLogcat.txt",
+	}
+	errStream := new(bytes.Buffer)
+	cli := &CLI{inStream: nil, errStream: errStream}
+	args := []string{"logcat2csv", "./test"}
+
+	status := cli.Run(args, "")
+	if status != ExitCodeOK {
+		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
+	}
+
+	for _, path := range paths {
+		if isFile(path + ".csv") {
+			t.Error(path + ".csv is created.")
+		}
+		continue
 	}
 }

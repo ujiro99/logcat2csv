@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -14,14 +15,16 @@ const MaxFailCount = 5
 type logcat2csv struct{}
 
 func (l *logcat2csv) execStream(params cmdParams) int {
-	status := l.exec(params)
-	if status == ExitCodeError {
-		fmt.Fprintf(params.error, "Parse error. Conversion canceled.")
+	err := l.exec(params)
+	if err != nil {
+		fmt.Fprintf(params.error, err.Error())
+		return ExitCodeError
 	}
-	return status
+	return ExitCodeOK
 }
 
 func (l *logcat2csv) execFiles(params cmdParams) int {
+	success := false
 	for _, path := range params.paths {
 		r, e := os.Open(path)
 		defer r.Close()
@@ -37,33 +40,47 @@ func (l *logcat2csv) execFiles(params cmdParams) int {
 		}
 		params.reader = r
 		params.writer = w
-		status := l.exec(params)
-		if status == ExitCodeError {
-			fmt.Fprintf(params.error, "Parse error. Conversion canceled: %s\n", path)
+		err := l.exec(params)
+		if err != nil {
+			fmt.Fprintf(params.error, "%s: %s\n", err, path)
 			os.Remove(path + ".csv")
+		} else {
+			success = true
 		}
 	}
-	return ExitCodeOK
+	if success {
+		return ExitCodeOK
+	} else {
+		return ExitCodeError
+	}
 }
 
-func (l *logcat2csv) exec(params cmdParams) int {
+func (l *logcat2csv) exec(params cmdParams) error {
 	csvWriter := NewWriter(params.writer, params.encode, params.osName)
 	parser := logcat.NewParser()
-	failCount := 0
+	fail := 0
+	success := 0
 	for line := range lines.Lines(params.reader) {
 		entry, err := parser.Parse(line)
 		if err == nil {
 			csvWriter.Write(entry)
+		} else {
+			fail = fail + 1
 		}
-		if err != nil || entry.Format() == "raw" {
-			failCount = failCount + 1
+		if entry.Format() == "raw" {
+			fail = fail + 1
+		} else {
+			success = success + 1
 		}
-		if failCount > MaxFailCount {
-			return ExitCodeError
+		if fail > MaxFailCount {
+			return errors.New("Parse error. Conversion canceled")
 		}
 	}
+	if success <= 0 {
+		return errors.New("Format error. Conversion canceled")
+	}
 	csvWriter.Flush()
-	return ExitCodeOK
+	return nil
 }
 
 // Exec execute converting.
