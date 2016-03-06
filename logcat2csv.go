@@ -19,13 +19,13 @@ func (l *logcat2csv) execFiles(params cmdParams) int {
 		r, e := os.Open(path)
 		defer r.Close()
 		if e != nil {
-			fmt.Printf("File open error: %s\n", path)
+			fmt.Fprintf(params.error, "File open error: %s\n", path)
 			return ExitCodeError
 		}
 		w, e := os.Create(path + ".csv")
 		defer w.Close()
 		if e != nil {
-			fmt.Printf("File create error: %s\n", path+".csv")
+			fmt.Fprintf(params.error, "File create error: %s\n", path+".csv")
 			return ExitCodeError
 		}
 		params.reader = r

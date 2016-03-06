@@ -26,11 +26,10 @@ type CLI struct {
 }
 
 type cmdParams struct {
-	reader io.Reader
-	writer io.Writer
-	encode string
-	paths  []string
-	osName string
+	reader         io.Reader
+	writer, error  io.Writer
+	encode, osName string
+	paths          []string
 }
 
 // Run invokes the CLI with the given arguments.
@@ -61,6 +60,7 @@ func (cli *CLI) Run(args []string, osName string) int {
 
 	// Parse arguments
 	params := cmdParams{
+		error:  cli.errStream,
 		encode: encode,
 		osName: osName,
 	}

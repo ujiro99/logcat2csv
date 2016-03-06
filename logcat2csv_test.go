@@ -39,6 +39,24 @@ func TestLogcat2csv_Exec_File(t *testing.T) {
 	checkFile(paths[0], expect, t)
 }
 
+func TestLogcat2csv_Exec_File_Nil(t *testing.T) {
+	fileName := "not_a_file"
+	expect := "File open error: " + fileName + "\n"
+
+	out := new(bytes.Buffer)
+	params := cmdParams{
+		paths: []string{fileName},
+		error: out,
+	}
+
+	logcat2csv := logcat2csv{}
+	logcat2csv.Exec(params)
+
+	if out.String() != expect {
+		t.Errorf("\n  result: %q\n  expect: %q", out.String(), expect)
+	}
+}
+
 func TestLogcat2csv_Exec_Multiple_File(t *testing.T) {
 	expect0 := []string{
 		"01-01 00:00:00.000,930,931,I,tag_value,message_value_1",
