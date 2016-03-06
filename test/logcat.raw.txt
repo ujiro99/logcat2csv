@@ -1,0 +1,100 @@
+--------- beginning of main
+type=2000 audit(0.0:1): initialized
+type=1403 audit(0.0:2): policy loaded auid=4294967295 ses=4294967295
+type=1404 audit(0.0:3): enforcing=1 old_enforcing=0 auid=4294967295 ses=4294967295
+uid=0(root) /init expire 1 line
+uid=0(root) expire 13 lines
+uid=0(root) /system/bin/lmkd expire 2 lines
+uid=0(root) /system/bin/netd expire 13 lines
+uid=0(root) /system/xbin/perfprofd expire 3 lines
+uid=1000(system) /system/bin/gatekeeperd expire 3 lines
+uid=1000(system) /system/bin/fingerprintd expire 1 line
+uid=0(root) /system/bin/debuggerd expire 1 line
+uid=0(root) /system/bin/installd expire 6 lines
+--------- beginning of system
+Vold 3.0 (the awakening) firing up
+Detected support for: ext4 vfat
+uid=1000(system) /system/bin/surfaceflinger expire 12 lines
+ServiceManager: 0xb614c680
+Using default 3000 mSec as standby time.
+batterystats service unavailable!
+batterystats service unavailable!
+CameraService started (pid=955)
+CameraService process starting
+batterystats service unavailable!
+batterystats service unavailable!
+Emulated camera list: 
+Initialize: Fake camera is facing back
+initializeWhiteBalanceModes with auto, 1.000000, 1.000000
+initializeWhiteBalanceModes with incandescent, 1.380000, 0.600000
+initializeWhiteBalanceModes with daylight, 1.090000, 0.920000
+initializeWhiteBalanceModes with twilight, 0.920000, 1.220000
+setWhiteBalanceMode with white balance auto
+Initialize: Fake camera is facing front
+initializeWhiteBalanceModes with auto, 1.000000, 1.000000
+initializeWhiteBalanceModes with incandescent, 1.380000, 0.600000
+initializeWhiteBalanceModes with daylight, 1.090000, 0.920000
+initializeWhiteBalanceModes with twilight, 0.920000, 1.220000
+setWhiteBalanceMode with white balance auto
+Loaded "Emulated Camera Module" camera module
+getCameraInfo
+getCameraInfo
+Opening camera 0
+getCameraInfo
+getCameraInfo
+connectCamera
+connectDevice
+setCallbacks: 0xb75d0505, 0xb75d0dba, 0xb75d0c92, 0xb75d1267 (0xb6159a20)
+Waiting for service SurfaceFlinger...
+Client API: OpenGL_ES
+EGLSurface: 8-8-8-8, config=0x9
+OpenGL ES informations:
+vendor    : Google (Intel Inc.)
+renderer  : Android Emulator OpenGL ES Translator (Intel(R) HD Graphics 5300)
+version   : OpenGL ES 2.0 (2.1 INTEL-10.12.13)
+extensions: GL_EXT_debug_marker GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_depth24 GL_OES_depth32 GL_OES_element_index_uint GL_OES_texture_float GL_OES_texture_float_linear GL_OES_compressed_paletted_texture GL_OES_compressed_ETC1_RGB8_texture GL_OES_depth_texture GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_OES_packed_depth_stencil GL_OES_vertex_half_float GL_OES_texture_npot
+GL_MAX_TEXTURE_SIZE = 16384
+GL_MAX_VIEWPORT_DIMS = 16384
+Set power mode=2, type=0 flinger=0xb7062000
+shader cache generated - 24 shaders in 396.853882 ms
+ro.sf.lcd_density must be defined as a build property
+loaded /system/lib/egl/libEGL_emulation.so
+loaded /system/lib/egl/libGLESv1_CM_emulation.so
+loaded /system/lib/egl/libGLESv2_emulation.so
+HostConnection::get() New Host Connection established 0xb655c2b0, tid 1165
+HostConnection::get() New Host Connection established 0xb7052bf0, tid 1091
+HostConnection::get() New Host Connection established 0xb7052c60, tid 1093
+setPreviewWindow: current: 0x0 -> new: 0xb6159a30
+setParameters
++++ New parameter: flash-mode=off
+doStopPreview
+setPreviewWindow: current: 0xb6159a30 -> new: 0x0
+releaseCamera
+doStopPreview
+disconnectDevice
+Destroying camera 0
+closeCamera
+doStopPreview
+getCameraInfo
+getCameraInfo
+Opening camera 1
+getCameraInfo
+getCameraInfo
+connectCamera
+connectDevice
+setCallbacks: 0xb75d0505, 0xb75d0dba, 0xb75d0c92, 0xb75d1267 (0xb6159a20)
+setPreviewWindow: current: 0x0 -> new: 0xb6159a30
+setParameters
++++ New parameter: flash-mode=off
+doStopPreview
+setPreviewWindow: current: 0xb6159a30 -> new: 0x0
+releaseCamera
+java.io.IOException: Invalid device key response.
+	at com.google.android.gms.auth.be.appcert.a.a(SourceFile:268)
+	at com.google.android.gms.auth.be.appcert.a.a(SourceFile:132)
+	at com.google.android.gms.auth.be.appcert.b.a(SourceFile:43)
+	at com.google.android.gms.auth.b.b.a(SourceFile:62)
+	at com.google.android.gms.auth.b.a.a(SourceFile:120)
+	at com.google.android.gms.auth.b.a.a(SourceFile:61)
+	at com.google.android.gms.auth.be.cron.AuthCronService.a(SourceFile:44)
+	at com.google.android.gms.gcm.al.run(SourceFile:135)

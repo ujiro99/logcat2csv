@@ -61,6 +61,24 @@ func TestLogcat2csv_Exec_File_Nil(t *testing.T) {
 	}
 }
 
+func TestLogcat2csv_Exec_File_Raw(t *testing.T) {
+	fileName := "./test/logcat.raw.txt"
+	expect := "Parse error. Conversion canceled: " + fileName + "\n"
+
+	out := new(bytes.Buffer)
+	params := cmdParams{
+		paths: []string{fileName},
+		error: out,
+	}
+
+	logcat2csv := logcat2csv{}
+	logcat2csv.Exec(params)
+
+	if out.String() != expect {
+		t.Errorf("\n  result: %q\n  expect: %q", out.String(), expect)
+	}
+}
+
 func TestLogcat2csv_Exec_Multiple_File(t *testing.T) {
 	expect0 := []string{
 		"01-01 00:00:00.000,930,931,I,tag_value,message_value_1",
