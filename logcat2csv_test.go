@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"errors"
+	"fmt"
 	"os"
 	"strings"
 	"testing"
@@ -36,7 +38,9 @@ func TestLogcat2csv_Exec_File(t *testing.T) {
 	logcat2csv := logcat2csv{}
 	logcat2csv.Exec(params)
 
-	checkFile(paths[0], expect, t)
+	if err := checkFile(paths[0], expect); err != nil {
+		t.Error(err)
+	}
 }
 
 func TestLogcat2csv_Exec_File_Nil(t *testing.T) {
@@ -74,15 +78,19 @@ func TestLogcat2csv_Exec_Multiple_File(t *testing.T) {
 	logcat2csv := logcat2csv{}
 	logcat2csv.Exec(params)
 
-	checkFile(paths[0], expect0, t)
-	checkFile(paths[1], expect1, t)
+	if err := checkFile(paths[0], expect0); err != nil {
+		t.Error(err)
+	}
+	if err := checkFile(paths[1], expect1); err != nil {
+		t.Error(err)
+	}
 }
 
-func checkFile(file string, expect []string, t *testing.T) {
+func checkFile(file string, expect []string) error {
 	var out string
 	fp, err := os.Open(file + ".csv")
 	if err != nil {
-		t.Errorf("os.Open: %v", err)
+		return err
 	}
 	defer fp.Close()
 	scanner := bufio.NewScanner(fp)
@@ -91,13 +99,14 @@ func checkFile(file string, expect []string, t *testing.T) {
 	for scanner.Scan() {
 		out = scanner.Text()
 		if out != expect[i] {
-			t.Errorf("\n  result: %q\n  expect: %q", out, expect[i])
+			return errors.New(fmt.Sprintf("\n  result: %q\n  expect: %q", out, expect[i]))
 		}
 		i = i + 1
 	}
 	if err := scanner.Err(); err != nil {
-		t.Errorf("scanner.Err: %v", err)
+		return err
 	} else {
 		os.Remove(file + ".csv")
 	}
+	return nil
 }

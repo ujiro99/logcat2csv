@@ -100,7 +100,10 @@ func TestRun_encodeFlag(t *testing.T) {
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
-	checkFile(args[3], expect, t)
+	err := checkFile(args[3], expect)
+	if err != nil {
+		t.Error(err)
+	}
 }
 
 func TestRun_Exec_Multiple_File(t *testing.T) {
@@ -120,8 +123,12 @@ func TestRun_Exec_Multiple_File(t *testing.T) {
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
-	checkFile(args[1], expect0, t)
-	checkFile(args[2], expect1, t)
+	if err := checkFile(args[1], expect0); err != nil {
+		t.Error(err)
+	}
+	if err := checkFile(args[2], expect1); err != nil {
+		t.Error(err)
+	}
 }
 
 func TestRun_Exec_File_Not_File(t *testing.T) {
@@ -140,7 +147,9 @@ func TestRun_Exec_File_Not_File(t *testing.T) {
 	if status != ExitCodeOK {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
-	checkFile(args[1], expect0, t)
+	if err := checkFile(args[1], expect0); err != nil {
+		t.Error(err)
+	}
 
 	if errStream.String() != expect {
 		t.Errorf("\n  result: %q\n  expect: %q", errStream.String(), expect)
