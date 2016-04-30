@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"strings"
 	"testing"
 
@@ -45,8 +46,9 @@ func TestRun_versionFlag(t *testing.T) {
 }
 
 func TestRun_No_Args(t *testing.T) {
-	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
-	cli := &CLI{inStream: nil, outStream: outStream, errStream: errStream}
+	outStream := new(bytes.Buffer)
+	inStream := strings.NewReader("\n")
+	cli := &CLI{inStream: inStream, outStream: outStream}
 	args := strings.Split("./logcat2csv", " ")
 
 	status := cli.Run(args, "")
@@ -57,7 +59,7 @@ func TestRun_No_Args(t *testing.T) {
 
 func TestRun_Not_File(t *testing.T) {
 	fileName := "not_a_file"
-	expect := "File does not exist: " + fileName + "\n"
+	expect := "Path does not exist: " + fileName + "\nTarget not found.\n"
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{inStream: nil, outStream: outStream, errStream: errStream}
 	args := []string{"logcat2csv", fileName}
@@ -75,8 +77,8 @@ func TestRun_Exec_Stdio(t *testing.T) {
 	expect := "01-01 00:00:00.000,930,931,I,tag_value,message_value\n"
 
 	inStream := strings.NewReader("01-01 00:00:00.000   930   931 I tag_value  : message_value")
-	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
-	cli := &CLI{inStream: inStream, outStream: outStream, errStream: errStream}
+	outStream := new(bytes.Buffer)
+	cli := &CLI{inStream: inStream, outStream: outStream}
 	args := strings.Split("./logcat2csv", " ")
 
 	status := cli.Run(args, "")
@@ -138,7 +140,7 @@ func TestRun_Exec_File_Not_File(t *testing.T) {
 	}
 
 	fileName := "not_a_file"
-	expect := "File does not exist: " + fileName + "\n"
+	expect := "Path does not exist: " + fileName + "\n"
 	errStream := new(bytes.Buffer)
 	cli := &CLI{inStream: nil, errStream: errStream}
 	args := []string{"logcat2csv", "test/logcat.txt", fileName}
@@ -163,8 +165,7 @@ func TestRun_Exec_Directory(t *testing.T) {
 		"test/logcat.threadtime.txt",
 		"test/logcat_kanji.txt",
 	}
-	errStream := new(bytes.Buffer)
-	cli := &CLI{inStream: nil, errStream: errStream}
+	cli := &CLI{inStream: nil}
 	args := []string{"logcat2csv", "./test"}
 
 	status := cli.Run(args, "")
@@ -179,13 +180,12 @@ func TestRun_Exec_Directory(t *testing.T) {
 	}
 }
 
-func TestRun_Exec_Directory_Ignore(t *testing.T) {
-	paths := []string{
+func TestRun_Exec_Directory_Ignore_if_not_logcat_file(t *testing.T) {
+	ignorePaths := []string{
 		"test/logcat.raw.txt",
 		"test/notLogcat.txt",
 	}
-	errStream := new(bytes.Buffer)
-	cli := &CLI{inStream: nil, errStream: errStream}
+	cli := &CLI{inStream: nil}
 	args := []string{"logcat2csv", "./test"}
 
 	status := cli.Run(args, "")
@@ -193,10 +193,52 @@ func TestRun_Exec_Directory_Ignore(t *testing.T) {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
 
-	for _, path := range paths {
-		if isFile(path + ".csv") {
+	for _, path := range ignorePaths {
+		if s, err := os.Stat(path + ".csv"); err == nil && !s.IsDir() {
 			t.Error(path + ".csv is created.")
 		}
 		continue
+	}
+
+	// clean generated files
+	paths := []string{
+		"test/logcat.txt",
+		"test/logcat2.txt",
+		"test/logcat.threadtime.txt",
+		"test/logcat_kanji.txt",
+	}
+	for _, path := range paths {
+		checkFile(path, nil)
+	}
+}
+
+func TestRun_Exec_Directory_ignore_if_csv_already_exists(t *testing.T) {
+	ignorePaths := []string{
+		"test/ignore.txt",
+	}
+	cli := &CLI{inStream: nil}
+	args := []string{"logcat2csv", "./test"}
+
+	status := cli.Run(args, "")
+	if status != ExitCodeOK {
+		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
+	}
+
+	for _, path := range ignorePaths {
+		if _, err := os.Stat(path + ".csv"); err != nil {
+			t.Error(path + ".csv is deleted.")
+		}
+		continue
+	}
+
+	// clean generated files
+	paths := []string{
+		"test/logcat.txt",
+		"test/logcat2.txt",
+		"test/logcat.threadtime.txt",
+		"test/logcat_kanji.txt",
+	}
+	for _, path := range paths {
+		checkFile(path, nil)
 	}
 }

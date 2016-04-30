@@ -1,0 +1,10 @@
+--------- beginning of main
+12-28 18:54:07.120   930   930 W auditd  : type=2000 audit(0.0:1): initialized
+12-28 18:54:07.180   930   930 I auditd  : type=1403 audit(0.0:2): policy loaded auid=4294967295 ses=4294967295
+12-28 18:54:07.180   930   930 W auditd  : type=1404 audit(0.0:3): enforcing=1 old_enforcing=0 auid=4294967295 ses=4294967295
+12-28 18:54:07.250     1     1 I chatty  : uid=0(root) /init expire 1 line
+12-28 18:54:07.723   943   943 I chatty  : uid=0(root) expire 13 lines
+12-28 18:54:07.956   940   940 I chatty  : uid=0(root) /system/bin/lmkd expire 2 lines
+12-28 18:54:07.993   949   949 I chatty  : uid=0(root) /system/bin/netd expire 13 lines
+12-28 18:54:08.043   960   960 I chatty  : uid=0(root) /system/xbin/perfprofd expire 3 lines
+12-28 18:54:08.376   959   959 I chatty  : uid=1000(system) /system/bin/gatekeeperd expire 3 lines

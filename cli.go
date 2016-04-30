@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -34,12 +35,20 @@ type cmdParams struct {
 	paths          []string
 }
 
+func (cli *CLI) init() {
+	if cli.errStream == nil {
+		// To output error message, errStream must be initialized always.
+		cli.errStream = new(bytes.Buffer)
+	}
+}
+
 // Run invokes the CLI with the given arguments.
 func (cli *CLI) Run(args []string, osName string) int {
 	var (
 		encode  string
 		version bool
 	)
+	cli.init()
 
 	// Define option flag parse
 	flags := flag.NewFlagSet(Name, flag.ContinueOnError)
@@ -72,6 +81,7 @@ func (cli *CLI) Run(args []string, osName string) int {
 	} else {
 		params.paths = cli.expandArgs(flags.Args())
 		if len(params.paths) <= 0 {
+			fmt.Fprintf(cli.errStream, "Target not found.\n")
 			return ExitCodeError
 		}
 	}
@@ -96,9 +106,10 @@ func (cli *CLI) listFiles(dirName string) []string {
 	i := 0
 	for _, fileInfo := range fileInfos {
 		// don't list recursively
-		if !fileInfo.IsDir() {
-			files[i] = filepath.Join(dirName, fileInfo.Name())
-			i = i + 1
+		filePath := filepath.Join(dirName, fileInfo.Name())
+		if isValidFile(filePath) {
+			files[i] = filePath
+			i++
 		}
 	}
 	return files[:i]
@@ -122,12 +133,12 @@ func (cli *CLI) expandArgs(args []string) []string {
 		if isDir(path) {
 			pathMap[path] = cli.listFiles(path)
 			total = total + len(pathMap[path])
-		} else if isFile(path) {
+		} else if isValidFile(path) {
 			files[count] = path
 			total = total + 1
 			count = count + 1
 		} else {
-			fmt.Fprintf(cli.errStream, "File does not exist: %s\n", path)
+			fmt.Fprintf(cli.errStream, "Path does not exist: %s\n", path)
 		}
 	}
 	pathMap[""] = files[:count]
@@ -142,8 +153,15 @@ func (cli *CLI) expandArgs(args []string) []string {
 	return filePaths
 }
 
-func isFile(file string) bool {
+func isValidFile(file string) bool {
 	if s, err := os.Stat(file); err != nil || s.IsDir() {
+		return false
+	}
+	if filepath.Ext(file) == "csv" {
+		return false
+	}
+	// ignore if csv file is already exists.
+	if _, err := os.Stat(file + ".csv"); err == nil {
 		return false
 	}
 	return true
