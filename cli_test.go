@@ -67,7 +67,7 @@ func TestRun_No_Args(t *testing.T) {
 
 func TestRun_Not_File(t *testing.T) {
 	fileName := "not_a_file"
-	expect := "Path does not exist: " + fileName + "\nTarget not found.\n"
+	expect := "File does not exist: " + fileName + "\nTarget not found.\n"
 	outStream, errStream := new(bytes.Buffer), new(bytes.Buffer)
 	cli := &CLI{inStream: nil, outStream: outStream, errStream: errStream}
 	args := []string{"logcat2csv", fileName}
@@ -116,6 +116,25 @@ func TestRun_encodeFlag(t *testing.T) {
 	}
 }
 
+func TestRun_encodeFlag_output_with_utf8_if_encoding_failed(t *testing.T) {
+	expect := []string{
+		convertTo("01-01 00:00:01.000,930,931,I,tag_value,message_value_あ亜Ａア￥凜熙♪堯", ShiftJIS),
+		convertTo("01-01 00:00:01.000,930,931,I,tag_value,\"AddressBook Labels [en-US]: [, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, Α, Β, Γ, Δ, Ε, Ζ, Η, Θ, Ι, Κ, Λ, Μ, Ν, Ξ, Ο, Π, Ρ, Σ, Τ, Υ, Φ, Χ, Ψ, Ω, , А, Б, В, Г, Д, Ђ, Е, Є, Ж, З, И, І, Й, Ј, К, Л, Љ, М, Н, Њ, О, П, Р, С, Т, Ћ, У, Ф, Х, Ц, Ч, Џ, Ш, Щ, Ю, Я, , א, ב, ג, ד, ה, ו, ז, ח, ט, י, כ, ל, מ, נ, ס, ע, פ, צ, ק, ר, ש, ת, , ا, ب, ت, ث, ج, ح, خ, د, ذ, ر, ز, س, ش, ص, ض, ط, ظ, ع, غ, ف, ق, ك, ل, م, ن, ه, و, ي, , ก, ข, ฃ, ค, ฅ, ฆ, ง, จ, ฉ, ช, ซ, ฌ, ญ, ฎ, ฏ, ฐ, ฑ, ฒ, ณ, ด, ต, ถ, ท, ธ, น, บ, ป, ผ, ฝ, พ, ฟ, ภ, ม, ย, ร, ฤ, ล, ฦ, ว, ศ, ษ, ส, ห, ฬ, อ, ฮ, , ㄱ, ㄴ, ㄷ, ㄹ, ㅁ, ㅂ, ㅅ, ㅇ, ㅈ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ, , あ, か, さ, た, な, は, ま, や, ら, わ, #, ]\"", UTF8),
+		convertTo("01-01 00:00:01.000,930,931,I,tag_value,\"AddressBook Labels [en-US]: [, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z]\"", ShiftJIS),
+	}
+	cli := &CLI{inStream: nil}
+	args := strings.Split("./logcat2csv --encode shift-jis test/logcat_not_shiftjis.txt", " ")
+
+	status := cli.Run(args, "")
+	if status != ExitCodeOK {
+		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
+	}
+	err := checkFile(args[3], expect)
+	if err != nil {
+		t.Error(err)
+	}
+}
+
 func TestRun_Exec_Multiple_File(t *testing.T) {
 	expect0 := []string{
 		"01-01 00:00:00.000,930,931,I,tag_value,message_value_1",
@@ -148,7 +167,7 @@ func TestRun_Exec_File_Not_File(t *testing.T) {
 	}
 
 	fileName := "not_a_file"
-	expect := "Path does not exist: " + fileName + "\n"
+	expect := "File does not exist: " + fileName + "\n"
 	errStream := new(bytes.Buffer)
 	cli := &CLI{inStream: nil, errStream: errStream}
 	args := []string{"logcat2csv", "test/logcat.txt", fileName}

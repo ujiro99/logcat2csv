@@ -61,19 +61,27 @@ func (l *logcat2csv) exec(params cmdParams) error {
 	fail := 0
 	success := 0
 	for line := range lines.Lines(params.reader) {
-		entry, err := parser.Parse(line)
-		if err == nil {
-			csvWriter.Write(entry) // TODO: handle err
-			if entry.Format() == "raw" {
-				fail++ // Not a logcat format.
-			} else {
-				success++
-			}
-		} else {
-			fail++ // Can't parse to logcat.
-		}
 		if fail > MaxFailCount {
 			return errors.New("Parse error. Conversion canceled")
+		}
+
+		// Parse
+		entry, err := parser.Parse(line)
+		if err != nil {
+			fail++ // Can't parse to logcat.
+			continue
+		}
+		if entry.Format() == "raw" {
+			fail++ // Not a logcat format.
+		} else {
+			success++
+		}
+
+		// Write
+		err = csvWriter.Write(entry)
+		if err != nil {
+			// fmt.Printf("%s\tLine: %s\n", err, line) // for debug
+			fmt.Fprintf(params.error, "%s\tLine: %s\n", err, line)
 		}
 	}
 	if success <= 0 {

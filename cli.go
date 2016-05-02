@@ -107,7 +107,7 @@ func (cli *CLI) listFiles(dirName string) []string {
 	for _, fileInfo := range fileInfos {
 		// don't list recursively
 		filePath := filepath.Join(dirName, fileInfo.Name())
-		if isValidFile(filePath) {
+		if cli.isValidFile(filePath) {
 			files[i] = filePath
 			i++
 		}
@@ -133,12 +133,10 @@ func (cli *CLI) expandArgs(args []string) []string {
 		if isDir(path) {
 			pathMap[path] = cli.listFiles(path)
 			total = total + len(pathMap[path])
-		} else if isValidFile(path) {
+		} else if cli.isValidFile(path) {
 			files[count] = path
 			total = total + 1
 			count = count + 1
-		} else {
-			fmt.Fprintf(cli.errStream, "Path does not exist: %s\n", path)
 		}
 	}
 	pathMap[""] = files[:count]
@@ -153,15 +151,18 @@ func (cli *CLI) expandArgs(args []string) []string {
 	return filePaths
 }
 
-func isValidFile(file string) bool {
+func (cli *CLI) isValidFile(file string) bool {
 	if s, err := os.Stat(file); err != nil || s.IsDir() {
+		fmt.Fprintf(cli.errStream, "File does not exist: %s\n", file)
 		return false
 	}
 	if filepath.Ext(file) == "csv" {
+		fmt.Fprintf(cli.errStream, "Ignore CSV file: %s\n", file)
 		return false
 	}
 	// ignore if csv file is already exists.
 	if _, err := os.Stat(file + ".csv"); err == nil {
+		fmt.Fprintf(cli.errStream, "CSV file already exists: %s\n", file)
 		return false
 	}
 	return true
