@@ -12,6 +12,14 @@ import (
 	"golang.org/x/text/transform"
 )
 
+var pathsInDir = []string{
+	"test/logcat.txt",
+	"test/logcat2.txt",
+	"test/logcat.threadtime.txt",
+	"test/logcat_kanji.txt",
+	"test/logcat_not_shiftjis.txt",
+}
+
 func convertTo(str string, encode string) string {
 	buf := new(bytes.Buffer)
 	var w io.Writer
@@ -159,12 +167,6 @@ func TestRun_Exec_File_Not_File(t *testing.T) {
 }
 
 func TestRun_Exec_Directory(t *testing.T) {
-	paths := []string{
-		"test/logcat.txt",
-		"test/logcat2.txt",
-		"test/logcat.threadtime.txt",
-		"test/logcat_kanji.txt",
-	}
 	cli := &CLI{inStream: nil}
 	args := []string{"logcat2csv", "./test"}
 
@@ -173,7 +175,7 @@ func TestRun_Exec_Directory(t *testing.T) {
 		t.Errorf("expected %d to eq %d", status, ExitCodeOK)
 	}
 
-	for _, path := range paths {
+	for _, path := range pathsInDir {
 		if err := checkFile(path, nil); err != nil {
 			t.Error(err)
 		}
@@ -201,13 +203,7 @@ func TestRun_Exec_Directory_Ignore_if_not_logcat_file(t *testing.T) {
 	}
 
 	// clean generated files
-	paths := []string{
-		"test/logcat.txt",
-		"test/logcat2.txt",
-		"test/logcat.threadtime.txt",
-		"test/logcat_kanji.txt",
-	}
-	for _, path := range paths {
+	for _, path := range pathsInDir {
 		checkFile(path, nil)
 	}
 }
@@ -232,13 +228,7 @@ func TestRun_Exec_Directory_ignore_if_csv_already_exists(t *testing.T) {
 	}
 
 	// clean generated files
-	paths := []string{
-		"test/logcat.txt",
-		"test/logcat2.txt",
-		"test/logcat.threadtime.txt",
-		"test/logcat_kanji.txt",
-	}
-	for _, path := range paths {
+	for _, path := range pathsInDir {
 		checkFile(path, nil)
 	}
 }
